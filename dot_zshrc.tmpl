@@ -17,15 +17,24 @@ if command -v mise >/dev/null 2>&1; then
 fi
 
 # =========================
+# Completion (must precede fzf-tab)
+# =========================
+autoload -Uz compinit
+# Use a cached compdump for speed; build if missing
+ZCOMPDUMP_PATH="${ZDOTDIR:-$HOME}/.zcompdump"
+if [[ -r "$ZCOMPDUMP_PATH" ]]; then
+  compinit -d "$ZCOMPDUMP_PATH"
+else
+  compinit -C -d "$ZCOMPDUMP_PATH"
+fi
+
+# =========================
 # Plugins via zgenom
 # =========================
 # Install/Update zgenom with a chezmoi run_once_* script (see guide).
 # Load zgenom and compile plugin init on first run for fast startups.
 if [ -r "$HOME/.zgenom/zgenom.zsh" ]; then
   source "$HOME/.zgenom/zgenom.zsh"
-
-  # Ensure compinit is handled by zgenom (fast, cached)
-  zgenom compinit
 
   if ! zgenom saved; then
     echo "[zgenom] Building plugin cache..."

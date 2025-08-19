@@ -18,7 +18,7 @@ if [[ -z "${HOMEBREW_NO_AUTO_UPDATE}" ]]; then
   brew update || true
 fi
 # --no-lock avoids creating Brewfile.lock.json in $HOME
-brew bundle --file="$HOME/Brewfile" --no-lock || true
+brew bundle --file="$HOME/Brewfile" || true
 
 # --- REQUIRE zsh (error out if missing) ---
 if ! command -v zsh >/dev/null 2>&1; then
@@ -27,11 +27,16 @@ if ! command -v zsh >/dev/null 2>&1; then
   exit 1
 fi
 
-# --- Make zsh the default shell (if not already) ---
-if command -v zsh >/dev/null 2>&1; then
-  if [[ "${SHELL:-}" != "$ZSH_PATH" ]] && grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
-    chsh -s "$ZSH_PATH" || true
-  fi
+# --- REQUIRE zsh (error out if missing) ---
+if ! command -v zsh >/dev/null 2>&1; then
+  echo "[chezmoi] ERROR: zsh is required but not installed." >&2
+  echo "[chezmoi] Add 'brew \"zsh\"' to your Brewfile or install via your OS package manager, then re-run 'chezmoi apply'." >&2
+  exit 1
+fi
+
+ZSH_PATH="$(command -v zsh)"
+if [[ "${SHELL:-}" != "$ZSH_PATH" ]] && grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
+  chsh -s "$ZSH_PATH" || true
 fi
 
 if command -v mise >/dev/null 2>&1; then

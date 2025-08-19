@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Trust mise config files so 'mise install' etc. won't warn or refuse to run.
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "[mise-trust] mise not found; skipping."
+  exit 0
+fi
+
+# Common locations for mise configs (add/remove as you like)
+CANDIDATES=(
+  "$HOME/.local/share/chezmoi/mise.toml"      # chezmoi source repo
+  "$HOME/.config/mise/config.toml"            # global config (toml)
+  "$HOME/.mise.toml"                          # alt global
+  "$HOME/.config/mise/config.yaml"            # yaml variant
+  "$HOME/.mise.yaml"                          # yaml variant
+)
+
+trusted_any=0
+for cfg in "${CANDIDATES[@]}"; do
+  if [[ -f "$cfg" ]]; then
+    echo "[mise-trust] Trusting $cfg"
+    mise trust "$cfg" || true
+    trusted_any=1
+  fi
+done
+
+if [[ $trusted_any -eq 1 ]]; then
+  echo "[mise-trust] Current trusted configs:"
+  mise trust --show || true
+else
+  echo "[mise-trust] No mise config found to trust; nothing to do."
+fi
+

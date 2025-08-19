@@ -49,6 +49,14 @@ sudo apt-get install -y gnupg2 scdaemon pcscd yubikey-manager pinentry-curses
 sudo systemctl enable --now pcscd
 ```
 
+### Configure Pinentry
+
+```sh
+mkdir -p ~/.gnupg && chmod 700 ~/.gnupg
+echo "pinentry-program /usr/bin/pinentry-curses" >> ~/.gnupg/gpg-agent.conf
+gpgconf --kill gpg-agent
+```
+
 ### Automatically attach yubikey to WSL
 
 https://learn.microsoft.com/en-us/windows/wsl/connect-usb
