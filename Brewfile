@@ -1,6 +1,8 @@
+{{- /* taps */ -}} 
+tap "azure/kubelogin" 
+{{- end }}
+
 tap "azure/kubelogin"
-#tap "derailed/k9s"
-#tap "hashicorp/tap"
 tap "jesseduffield/lazygit"
 brew "gcc"
 brew "bat"
@@ -18,11 +20,9 @@ brew "mise"
 brew "ripgrep"
 brew "starship"
 brew "tmux"
-brew "trivy"
 brew "watch"
 brew "wget"
 brew "yq"
-brew "zig"
 brew "zoxide"
 brew "derailed/k9s/k9s"
 brew "hashicorp/tap/terraform"

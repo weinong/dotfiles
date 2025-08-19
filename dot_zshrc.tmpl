@@ -1,21 +1,20 @@
-# ----- Homebrew / Linuxbrew -----
 if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+  echo "[chezmoi] Homebrew not found. Please install Homebrew first."; exit 1
 fi
 
 # Basic PATH
 export PATH="$HOME/.local/bin:$PATH"
 
 # ----- mise (tool/version manager) -----
-export PATH="$HOME/.local/bin:$PATH"
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
-
 
 # =========================
 # Plugins via zgenom
@@ -25,15 +24,18 @@ fi
 if [ -r "$HOME/.zgenom/zgenom.zsh" ]; then
   source "$HOME/.zgenom/zgenom.zsh"
 
+  # Ensure compinit is handled by zgenom (fast, cached)
+  zgenom compinit
+
   if ! zgenom saved; then
     echo "[zgenom] Building plugin cache..."
 
     # External plugins you used before
     zgenom load Aloxaf/fzf-tab
-    zgenom load zsh-users/zsh-syntax-highlighting
-    zgenom load zsh-users/zsh-autosuggestions
-    zgenom load jeffreytse/zsh-vi-mode
     zgenom load wfxr/forgit
+    zgenom load jeffreytse/zsh-vi-mode
+    zgenom load zsh-users/zsh-autosuggestions
+    zgenom load zsh-users/zsh-syntax-highlighting
 
     zgenom save
   fi
@@ -49,12 +51,30 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-alias vim=nvim
-alias vi=nvim
-alias lg=lazygit
-alias l='eza'
-alias la='eza -a'
-alias ll='eza -lah'
-alias ls='eza --color=auto'
-alias cat='bat -P --style=plain'
+if command -v nvim >/dev/null 2>&1; then
+  alias vim='nvim'
+  alias vi='nvim'
+fi
 
+if command -v lazygit >/dev/null 2>&1; then
+  alias lg='lazygit'
+fi
+
+if command -v eza >/dev/null 2>&1; then
+  alias l='eza'
+  alias la='eza -a'
+  alias ll='eza -lah'
+  alias ls='eza --color=auto'
+else
+  alias ll='ls -lah'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat -P --style=plain'
+fi
+
+setopt autocd extendedglob interactivecomments
+setopt histignorealldups sharehistory incappendhistory
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=200000
+SAVEHIST=200000

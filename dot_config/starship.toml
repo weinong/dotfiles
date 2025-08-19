@@ -15,7 +15,7 @@ disabled = false  # Keep if you work with npm, cargo, etc.
 
 # Customize prompt order for clarity
 format = """
-$os$hostname$wsl$directory$git_branch$git_status$nodejs$python$rust
+$os$hostname$directory$git_branch$git_status$nodejs$python$rust
 $character
 """
 
