@@ -1,0 +1,14 @@
+[tools]
+go = "1.24.5"
+
+# Python + uv (fast package/venv manager)
+python = "3.12"
+uv = "latest"
+
+# Node.js (npm & npx included)
+node = "20"
+
+[env]
+GOPATH = "{{env.HOME}}/go"
+PATH = "{{env.HOME}}/go/bin:{{env.PATH}}"
+

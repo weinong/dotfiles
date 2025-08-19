@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Ensure Homebrew in PATH for this script ---
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+else
+  echo "[chezmoi] Homebrew not found. Please install Homebrew first."; exit 1
+fi
+
+echo "[chezmoi] Installing Brewfile packages..."
+brew update
+brew bundle --file="$HOME/Brewfile" || true  # non-fatal if some items unavailable
+
+# --- Make zsh the default shell (if not already) ---
+if command -v zsh >/dev/null 2>&1; then
+  chsh -s "$(command -v zsh)" || true
+fi
+
+# --- Install Go toolchain with mise (version set in mise.toml) ---
+if command -v mise >/dev/null 2>&1; then
+  echo "[chezmoi] Installing tools via mise..."
+  mise install || true
+else
+  echo "[chezmoi] mise not found; skip tool install."
+fi
+
+echo "[chezmoi] Bootstrap finished."
+

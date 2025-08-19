@@ -1,0 +1,60 @@
+# ----- Homebrew / Linuxbrew -----
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Basic PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# ----- mise (tool/version manager) -----
+export PATH="$HOME/.local/bin:$PATH"
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
+
+
+# =========================
+# Plugins via zgenom
+# =========================
+# Install/Update zgenom with a chezmoi run_once_* script (see guide).
+# Load zgenom and compile plugin init on first run for fast startups.
+if [ -r "$HOME/.zgenom/zgenom.zsh" ]; then
+  source "$HOME/.zgenom/zgenom.zsh"
+
+  if ! zgenom saved; then
+    echo "[zgenom] Building plugin cache..."
+
+    # External plugins you used before
+    zgenom load Aloxaf/fzf-tab
+    zgenom load zsh-users/zsh-syntax-highlighting
+    zgenom load zsh-users/zsh-autosuggestions
+    zgenom load jeffreytse/zsh-vi-mode
+    zgenom load wfxr/forgit
+
+    zgenom save
+  fi
+else
+  echo "[zshrc] zgenom not found. Run 'chezmoi apply' to install it." >&2
+fi
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+alias vim=nvim
+alias vi=nvim
+alias lg=lazygit
+alias l='eza'
+alias la='eza -a'
+alias ll='eza -lah'
+alias ls='eza --color=auto'
+alias cat='bat -P --style=plain'
+

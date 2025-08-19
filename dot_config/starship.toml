@@ -1,0 +1,78 @@
+# Minimal coding-friendly Starship setup for WSL + VS Code
+
+# Add a newline between prompts for readability
+add_newline = true
+
+# Disable modules you don't need for coding
+[aws]
+disabled = true
+[battery]
+disabled = true
+[gcloud]
+disabled = true
+[package]
+disabled = false  # Keep if you work with npm, cargo, etc.
+
+# Customize prompt order for clarity
+format = """
+$os$hostname$wsl$directory$git_branch$git_status$nodejs$python$rust
+$character
+"""
+
+# Show OS icon (optional, helps when switching between Windows/Linux)
+[os]
+format = "[$symbol]($style) "
+style = "dim white"
+
+# Hostname: show only when SSH or WSL
+[hostname]
+ssh_only = false
+style = "bold green"
+format = "[$hostname]($style) "
+
+# Directory style
+[directory]
+style = "bold cyan"
+truncate_to_repo = true
+truncation_length = 3
+
+# Git info – branch + status
+[git_branch]
+symbol = " "
+style = "bold purple"
+
+[git_status]
+style = "bold red"
+conflicted = "⚠"
+ahead = "⇡"
+behind = "⇣"
+untracked = "?"
+staged = "+"
+modified = "!"
+
+# Language runtimes – show only when relevant
+[nodejs]
+format = "via [⬢ $version](bold green) "
+detect_files = ["package.json", ".nvmrc", "node_modules"]
+
+[python]
+format = "via [🐍 $version]($style) "
+style = "bold yellow"
+detect_files = ["requirements.txt", "pyproject.toml", "Pipfile"]
+
+[rust]
+format = "via [🦀 $version](red bold) "
+detect_files = ["Cargo.toml"]
+
+# Prompt character
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+[status]
+format = '[\[$status\]]($style) '
+disabled = false
+map_symbol = false
+pipestatus = false
+success_symbol = ''
+
