@@ -45,7 +45,7 @@ wsl --shutdown
 
 ```sh
 sudo apt-get update
-sudo apt-get install -y gnupg2 scdaemon pcscd yubikey-manager pinentry-curses
+sudo apt-get install -y gnupg2 scdaemon pcscd yubikey-manager pinentry-gtk2
 sudo systemctl enable --now pcscd
 ```
 
@@ -53,7 +53,7 @@ sudo systemctl enable --now pcscd
 
 ```sh
 mkdir -p ~/.gnupg && chmod 700 ~/.gnupg
-echo "pinentry-program /usr/bin/pinentry-curses" >> ~/.gnupg/gpg-agent.conf
+echo 'pinentry-program /usr/bin/pinentry-gtk-2' >> ~/.gnupg/gpg-agent.conf
 gpgconf --kill gpg-agent
 ```
 
