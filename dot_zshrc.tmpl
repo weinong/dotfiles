@@ -52,6 +52,110 @@ else
   echo "[zshrc] zgenom not found. Run 'chezmoi apply' to install it." >&2
 fi
 
+if command -v brew >/dev/null 2>&1; then
+  FZF_BASE="$(brew --prefix)/opt/fzf"
+fi
+
+# Faster file/directory listing
+if command -v fd >/dev/null 2>&1; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+elif command -v rg >/dev/null 2>&1; then
+  export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --no-ignore-vcs'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='rg --files --hidden --follow --no-ignore-vcs --null | xargs -0 -n1 dirname | sort -u'
+fi
+
+# UI tweaks
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
+  --height=40% --layout=reverse
+  --border --margin=1
+  --ansi --tabstop=2
+  --info=inline
+  --preview-window=right,60%,border
+  --marker="•"'
+
+# Load fzf completion + keybindings
+if [ -n "$FZF_BASE" ]; then
+  [[ -r "$FZF_BASE/shell/completion.zsh" ]] && source "$FZF_BASE/shell/completion.zsh"
+  [[ -r "$FZF_BASE/shell/key-bindings.zsh" ]] && source "$FZF_BASE/shell/key-bindings.zsh"
+else
+  eval "$(fzf --zsh 2>/dev/null)" || true
+fi
+
+# Bindings for emacs & vi modes
+bindkey -M emacs '^R' fzf-history-widget
+bindkey -M viins '^R' fzf-history-widget
+bindkey -M vicmd '^R' fzf-history-widget
+
+bindkey -M emacs '^T' fzf-file-widget
+bindkey -M viins '^T' fzf-file-widget
+bindkey -M vicmd '^T' fzf-file-widget
+
+bindkey -M emacs '^[c' fzf-cd-widget    # Alt-c
+bindkey -M viins '^[c' fzf-cd-widget
+bindkey -M vicmd '^[c' fzf-cd-widget
+
+# Ctrl-F: pick a file then open in $EDITOR
+_fzf_open_in_editor() {
+  local pick
+  pick="$({ ${FZF_CTRL_T_COMMAND:-$FZF_DEFAULT_COMMAND} || find . -type f; } 2>/dev/null \
+    | fzf --preview="$FZF_PREVIEW_CMD")" || return
+  "${EDITOR:-nvim}" -- "$pick"
+}
+zle     -N   fzf-open-in-editor _fzf_open_in_editor
+bindkey -M emacs '^F' fzf-open-in-editor
+bindkey -M viins '^F' fzf-open-in-editor
+bindkey -M vicmd '^F' fzf-open-in-editor
+
+
+### ======================
+### fzf live grep (Ctrl-G)
+### ======================
+
+_fzf_live_grep() {
+  if ! command -v rg >/dev/null 2>&1; then
+    echo "fzf-live-grep requires ripgrep (rg). Install it (e.g., brew install ripgrep)." >&2
+    return 1
+  fi
+
+  local RG_BASE=('rg' '--line-number' '--no-heading' '--color=always' '--hidden' '--glob' '!.git')
+  local PREVIEW
+  if command -v bat >/dev/null 2>&1; then
+    PREVIEW='bat --style=plain --color=always --line-range=:500 --highlight-line {2} {1} 2>/dev/null || sed -n "1,200p" -- {1} 2>/dev/null'
+  else
+    PREVIEW='sed -n "1,200p" -- {1} 2>/dev/null'
+  fi
+
+  local selection
+  selection="$(
+    FZF_DEFAULT_COMMAND="${RG_BASE[*]} -- ''" \
+    fzf --ansi --disabled --phony --query '' \
+        --prompt='RG> ' \
+        --height=40% --layout=reverse --border --margin=1 \
+        --info=inline --preview "$PREVIEW" --preview-window=right,60%,border \
+        --delimiter=':' \
+        --bind "change:reload:${RG_BASE[*]} -- {q} || true" \
+        --bind "enter:accept"
+  )" || return
+
+  local file line
+  file="${selection%%:*}"
+  line="${selection#*:}"; line="${line%%:*}"
+  [[ -n "$file" ]] || return
+  if [[ -n "$line" ]]; then
+    "${EDITOR:-nvim}" +${line} -- "$file"
+  else
+    "${EDITOR:-nvim}" -- "$file"
+  fi
+}
+
+zle -N fzf-live-grep _fzf_live_grep
+bindkey -M emacs '^G' fzf-live-grep
+bindkey -M viins '^G' fzf-live-grep
+bindkey -M vicmd '^G' fzf-live-grep
+
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
 fi
@@ -80,6 +184,7 @@ fi
 
 if command -v bat >/dev/null 2>&1; then
   alias cat='bat -P --style=plain'
+  export FZF_PREVIEW_CMD='bat --style=plain --color=always --line-range=:500 {} 2>/dev/null || head -n 500 {}'
 fi
 
 setopt autocd extendedglob interactivecomments
@@ -87,3 +192,5 @@ setopt histignorealldups sharehistory incappendhistory
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=200000
 SAVEHIST=200000
+
+export GPG_TTY=$(tty)
