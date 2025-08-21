@@ -4,6 +4,7 @@ tap "azure/kubelogin"
 
 tap "azure/kubelogin"
 tap "jesseduffield/lazygit"
+brew "antidote"
 brew "gcc"
 brew "bat"
 brew "chezmoi"

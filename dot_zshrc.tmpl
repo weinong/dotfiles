@@ -16,40 +16,16 @@ if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
-# =========================
-# Completion (must precede fzf-tab)
-# =========================
-autoload -Uz compinit
-# Use a cached compdump for speed; build if missing
-ZCOMPDUMP_PATH="${ZDOTDIR:-$HOME}/.zcompdump"
-if [[ -r "$ZCOMPDUMP_PATH" ]]; then
-  compinit -d "$ZCOMPDUMP_PATH"
-else
-  compinit -C -d "$ZCOMPDUMP_PATH"
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
+
+antidote load
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
 fi
 
-# =========================
-# Plugins via zgenom
-# =========================
-# Install/Update zgenom with a chezmoi run_once_* script (see guide).
-# Load zgenom and compile plugin init on first run for fast startups.
-if [ -r "$HOME/.zgenom/zgenom.zsh" ]; then
-  source "$HOME/.zgenom/zgenom.zsh"
-
-  if ! zgenom saved; then
-    echo "[zgenom] Building plugin cache..."
-
-    # External plugins you used before
-    zgenom load Aloxaf/fzf-tab
-    zgenom load wfxr/forgit
-    zgenom load jeffreytse/zsh-vi-mode
-    zgenom load zsh-users/zsh-autosuggestions
-    zgenom load zsh-users/zsh-syntax-highlighting
-
-    zgenom save
-  fi
-else
-  echo "[zshrc] zgenom not found. Run 'chezmoi apply' to install it." >&2
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi
 
 if command -v brew >/dev/null 2>&1; then
@@ -77,25 +53,9 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
   --marker="•"'
 
 # Load fzf completion + keybindings
-if [ -n "$FZF_BASE" ]; then
-  [[ -r "$FZF_BASE/shell/completion.zsh" ]] && source "$FZF_BASE/shell/completion.zsh"
-  [[ -r "$FZF_BASE/shell/key-bindings.zsh" ]] && source "$FZF_BASE/shell/key-bindings.zsh"
-else
-  eval "$(fzf --zsh 2>/dev/null)" || true
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
 fi
-
-# Bindings for emacs & vi modes
-bindkey -M emacs '^R' fzf-history-widget
-bindkey -M viins '^R' fzf-history-widget
-bindkey -M vicmd '^R' fzf-history-widget
-
-bindkey -M emacs '^T' fzf-file-widget
-bindkey -M viins '^T' fzf-file-widget
-bindkey -M vicmd '^T' fzf-file-widget
-
-bindkey -M emacs '^[c' fzf-cd-widget    # Alt-c
-bindkey -M viins '^[c' fzf-cd-widget
-bindkey -M vicmd '^[c' fzf-cd-widget
 
 # Ctrl-F: pick a file then open in $EDITOR
 _fzf_open_in_editor() {
@@ -108,7 +68,6 @@ zle     -N   fzf-open-in-editor _fzf_open_in_editor
 bindkey -M emacs '^F' fzf-open-in-editor
 bindkey -M viins '^F' fzf-open-in-editor
 bindkey -M vicmd '^F' fzf-open-in-editor
-
 
 ### ======================
 ### fzf live grep (Ctrl-G)
@@ -156,14 +115,6 @@ bindkey -M emacs '^G' fzf-live-grep
 bindkey -M viins '^G' fzf-live-grep
 bindkey -M vicmd '^G' fzf-live-grep
 
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init zsh)"
-fi
-
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
-
 if command -v nvim >/dev/null 2>&1; then
   alias vim='nvim'
   alias vi='nvim'
@@ -187,10 +138,19 @@ if command -v bat >/dev/null 2>&1; then
   export FZF_PREVIEW_CMD='bat --style=plain --color=always --line-range=:500 {} 2>/dev/null || head -n 500 {}'
 fi
 
+# fzf-tab quality-of-life styles
+zstyle ':completion:*' menu yes
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':fzf-tab:*' switch-group ',' '.'
+zstyle ':fzf-tab:complete:*:*' fzf-preview 'bat --style=plain --color=always --line-range=:500 ${(Q)realpath}'
+
 setopt autocd extendedglob interactivecomments
-setopt histignorealldups sharehistory incappendhistory
+setopt appendhistory incappendhistory extendedhistory histignoredups histreduceblanks histverify
+# unsetopt sharehistory   # uncomment if cross-terminal merge is annoying
+#
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=200000
 SAVEHIST=200000
 
 export GPG_TTY=$(tty)
+
