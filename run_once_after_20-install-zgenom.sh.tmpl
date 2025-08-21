@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-if [ ! -d "$HOME/.zgenom" ]; then
-  git clone https://github.com/jandamm/zgenom "$HOME/.zgenom"
-else
-  git -C "$HOME/.zgenom" pull --ff-only || true
-fi
