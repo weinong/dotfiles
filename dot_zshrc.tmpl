@@ -16,6 +16,8 @@ if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
+ZVM_INIT_MODE=sourcing
+
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 
 antidote load
@@ -154,3 +156,5 @@ SAVEHIST=200000
 
 export GPG_TTY=$(tty)
 
+export EDITOR=nvim
+export VISUAL=$EDITOR

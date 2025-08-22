@@ -46,10 +46,5 @@ else
   echo "[chezmoi] mise not found; skip tool install."
 fi
 
-FZF_INSTALL="$(brew --prefix)/opt/fzf/install"
-if [[ -x "$FZF_INSTALL" ]]; then
-  "$FZF_INSTALL" --key-bindings --completion --no-bash --no-fish --no-update-rc || true
-fi
-
 echo "[chezmoi] Bootstrap finished."
 
