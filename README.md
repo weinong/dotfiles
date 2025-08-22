@@ -16,13 +16,9 @@ chezmoi init https://github.com/weinong/dotfiles --apply
 
 ## Daily use
 
-- Update packages: brew update && brew upgrade
-- Apply dotfiles changes: chezmoi apply
-- Update zgenom plugins: zgenom update  (pull latest for all plugins)
-  - Update zgenom itself: zgenom selfupdate
-  - Rebuild plugin cache if needed: zgenom reset && source ~/.zshrc (or exec zsh)
-  - Optional auto-update: add export ZGENOM_AUTOUPDATE_DAYS=7 to your .zshrc for weekly checks
-- Update mise tools: mise install (reinstalls missing/updated tool versions)
+- Update packages: `brew update && brew upgrade`
+- Apply dotfiles changes: `chezmoi apply`
+- Update mise tools: `mise install` (reinstalls missing/updated tool versions)
 
 ## Using Yubikey in WSL
 
@@ -71,8 +67,7 @@ usbipd wsl list
 usbipd bind --busid 2-1
 ```
 
-Every time WSL is rebooted:
-
+Run this in the terminal
 ```ps
 usbipd attach --wsl Ubuntu --busid 2-1 --auto-attach --unplugged
 ```
@@ -81,4 +76,5 @@ In WSL, verify
 
 ```sh
 gpg --card-status
+gpg --clearsign
 ```
