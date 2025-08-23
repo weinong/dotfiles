@@ -30,6 +30,10 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion zsh)
+fi
+
 if command -v brew >/dev/null 2>&1; then
   FZF_BASE="$(brew --prefix)/opt/fzf"
 fi
