@@ -6,7 +6,7 @@ python = "3.12"
 uv = "latest"
 
 # Node.js (npm & npx included)
-node = "20"
+node = "22"
 
 [env]
 GOPATH = "{{env.HOME}}/go"

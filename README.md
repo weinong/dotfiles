@@ -78,3 +78,10 @@ In WSL, verify
 gpg --card-status
 gpg --clearsign
 ```
+
+## Packages to Install on Windows
+
+```
+winget install win32yank
+# restart shell in wsl
+```

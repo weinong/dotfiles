@@ -8,9 +8,6 @@ else
   echo "[chezmoi] Homebrew not found. Please install Homebrew first."; exit 1
 fi
 
-# Basic PATH
-export PATH="$HOME/.local/bin:$PATH"
-
 # ----- mise (tool/version manager) -----
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
