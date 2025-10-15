@@ -59,9 +59,11 @@ https://learn.microsoft.com/en-us/windows/wsl/connect-usb
 
 Open Powershell in Admin mode (one time):
 ```ps
+# install usbipd-win
+winget install --interactive --exact dorssel.usbipd-win
 
 # find the BUSID
-usbipd wsl list
+usbipd list
 
 # Before attaching the USB device, the command usbipd bind must be used to share the device, allowing it to be attached to WSL.
 usbipd bind --busid 2-1
