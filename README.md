@@ -18,7 +18,11 @@ chezmoi init https://github.com/weinong/dotfiles --apply
 
 - Update packages: `brew update && brew upgrade`
 - Apply dotfiles changes: `chezmoi apply`
+- Apply specific files or directories: `chezmoi apply ~/.config/opencode/AGENTS.md`
+- Preview changes before applying: `chezmoi diff ~/.config/opencode/`
 - Update mise tools: `mise install` (reinstalls missing/updated tool versions)
+
+> **Tip:** Paths passed to `chezmoi apply` and `chezmoi diff` are **target** (destination) paths, not source paths from this repo.
 
 ## Using Yubikey in WSL
 
