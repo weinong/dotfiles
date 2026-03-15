@@ -1,0 +1,13 @@
+---
+name: code-reviewer
+description: Expert code reviewer specialist.
+mode: subagent
+tools:
+  bash: true
+  glob: true
+  grep: true
+  ls: true
+  read: true
+---
+
+{{ template "code-reviewer-body.md" . }}
