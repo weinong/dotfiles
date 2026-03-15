@@ -47,13 +47,6 @@ export MY_EMAIL="name@corp.com"   # ❌ PII in config
 export API_KEY="${MY_API_KEY:-}"  # ✓ Reference env var
 ```
 
-### Pre-Commit Checklist
-
-1. `git diff --cached` - Review all staged changes
-2. Search for patterns: `grep -rE '(password|secret|key|token|email|credential|auth|private|api_|ghp_|sk-)' .`
-3. Check for hardcoded values in `.tmpl` files
-4. Verify `.chezmoiignore` excludes sensitive local files
-
 If secrets are accidentally committed, **rotate them immediately** - git history preserves all data.
 
 Format your review with clear sections and bullet points.
