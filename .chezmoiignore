@@ -1,3 +1,4 @@
 # Ignore repo documentation; allow agent instruction .md files to sync
 README.md
 LICENSE
+AGENTS.md
