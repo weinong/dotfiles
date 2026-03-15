@@ -28,4 +28,32 @@ The input may be:
 - Test coverage
 - Security considerations
 
+## Security Rules
+
+**NEVER approve changes that commit sensitive data.** Flag as **Critical** if any files contain:
+
+- **Secrets**: API keys, tokens, passwords, private keys, certificates
+- **PII**: Email addresses, names, phone numbers, addresses, SSNs
+- **Internal identifiers**: Employee IDs, internal hostnames, IP addresses
+
+### Patterns to Flag
+
+```bash
+# NEVER hardcode these - use environment variables or secret managers
+export API_KEY="sk-..."           # ❌ Secrets in dotfiles
+export MY_EMAIL="name@corp.com"   # ❌ PII in config
+
+# Use placeholders or env vars instead
+export API_KEY="${MY_API_KEY:-}"  # ✓ Reference env var
+```
+
+### Pre-Commit Checklist
+
+1. `git diff --cached` - Review all staged changes
+2. Search for patterns: `grep -rE '(password|secret|key|token|email|credential|auth|private|api_|ghp_|sk-)' .`
+3. Check for hardcoded values in `.tmpl` files
+4. Verify `.chezmoiignore` excludes sensitive local files
+
+If secrets are accidentally committed, **rotate them immediately** - git history preserves all data.
+
 Format your review with clear sections and bullet points.
