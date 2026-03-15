@@ -14,6 +14,21 @@ brew install chezmoi
 chezmoi init https://github.com/weinong/dotfiles --apply
 ```
 
+### Headless / Non-Interactive Install
+
+For automated setups (CI, scripts, servers), use `NONINTERACTIVE=1` to skip prompts:
+
+```sh
+NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Add Homebrew to PATH (Linux/WSL)
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+brew install chezmoi
+
+chezmoi init https://github.com/weinong/dotfiles --apply
+```
+
 ## Daily use
 
 - Update packages: `brew update && brew upgrade`
