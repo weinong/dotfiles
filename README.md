@@ -4,6 +4,17 @@ A quick, repeatable way to set up a new machine with my shell, tools, and config
 
 > Supported: macOS (Apple Silicon & Intel), Linux, and WSL.
 
+## WSL2+Ubuntu
+
+```sh
+# Install OS-level prerequisites before Homebrew
+sudo apt-get update
+sudo apt-get install -y zsh ca-certificates curl git gnupg build-essential procps file
+```
+
+For unattended setup, configure sudo separately with `visudo` instead of copying a
+broad passwordless sudo rule into this repo.
+
 ## Bootstrap
 
 ```sh

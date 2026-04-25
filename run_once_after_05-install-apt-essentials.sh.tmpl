@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if eq .chezmoi.os "linux" }}
+if ! command -v apt-get >/dev/null 2>&1; then
+  echo "[apt-essentials] apt-get not found; skipping."
+  exit 0
+fi
+
+packages=(
+  zsh
+  ca-certificates
+  curl
+  git
+  gnupg
+  build-essential
+  procps
+  file
+)
+
+missing=()
+for package in "${packages[@]}"; do
+  if ! dpkg -s "$package" >/dev/null 2>&1; then
+    missing+=("$package")
+  fi
+done
+
+if [[ ${#missing[@]} -eq 0 ]]; then
+  echo "[apt-essentials] Essential apt packages already installed."
+  exit 0
+fi
+
+echo "[apt-essentials] Installing essential apt packages: ${missing[*]}"
+sudo DEBIAN_FRONTEND=noninteractive apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "${missing[@]}"
+{{ else }}
+echo "[apt-essentials] Not Linux; skipping."
+{{ end }}
