@@ -12,8 +12,40 @@ sudo apt-get update
 sudo apt-get install -y zsh ca-certificates curl git gnupg build-essential procps file
 ```
 
-For unattended setup, configure sudo separately with `visudo` instead of copying a
-broad passwordless sudo rule into this repo.
+Chezmoi also runs an idempotent Linux apt essentials script during `chezmoi
+apply`, but this manual step ensures the first bootstrap has the tools needed to
+install Homebrew and chezmoi.
+
+For unattended setup on a trusted personal machine, configure temporary
+passwordless sudo separately with `visudo` instead of managing a sudo rule in
+this repo:
+
+```sh
+sudo visudo -f /etc/sudoers.d/dont-prompt-$USER-for-sudo-password
+```
+
+Add this broad rule only for the duration of the bootstrap, replacing
+`yourusername` with the Linux username:
+
+```sudoers
+yourusername ALL=(ALL:ALL) NOPASSWD: ALL
+```
+
+Save and exit, then verify:
+
+```sh
+sudo chmod 0440 /etc/sudoers.d/dont-prompt-$USER-for-sudo-password
+sudo -l
+sudo true
+```
+
+After bootstrap, remove the temporary rule:
+
+```sh
+sudo rm /etc/sudoers.d/dont-prompt-$USER-for-sudo-password
+```
+
+For normal setup, let `sudo apt-get ...` prompt for the password.
 
 ## Bootstrap
 
