@@ -152,19 +152,21 @@ function Invoke-FzfLiveGrep {
         return
     }
 
+    $fzfShell = "pwsh -NoProfile -Command"
     $preview = if (Get-Command bat -ErrorAction SilentlyContinue) {
-        "bat --style=plain --color=always --line-range=:500 --highlight-line {2} {1}"
+        "bat --style=plain --color=always --line-range=:500 --highlight-line {2} -- {1}"
     } else {
-        "powershell -NoProfile -Command Get-Content -TotalCount 200 {1}"
+        "Get-Content -LiteralPath {1} -TotalCount 200"
     }
 
-    $selection = rg --line-number --no-heading --color=always --hidden --glob "!.git" "" |
+    $selection = @() |
         fzf --ansi --disabled --phony --query "" `
             --prompt "RG> " `
+            --with-shell $fzfShell `
             --preview $preview `
             --preview-window "right,60%,border" `
             --delimiter ":" `
-            --bind "change:reload:rg --line-number --no-heading --color=always --hidden --glob !.git {q} || exit 0" `
+            --bind "change:reload:rg --line-number --no-heading --color=always --hidden --glob '!.git' {q} || exit 0" `
             --bind "enter:accept"
 
     if ($selection -match "^(.*?):(\d+):") {

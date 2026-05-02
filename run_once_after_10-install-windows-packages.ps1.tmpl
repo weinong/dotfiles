@@ -27,6 +27,31 @@ function Install-WinGetPackage {
     winget install --id $Id --exact --source winget --accept-package-agreements --accept-source-agreements
 }
 
+function Get-MiseCommand {
+    $mise = Get-Command mise -ErrorAction SilentlyContinue
+    if ($mise) {
+        foreach ($candidate in @($mise.Source, $mise.Path, $mise.Definition, $mise.Name)) {
+            if ($candidate) {
+                return $candidate
+            }
+        }
+    }
+
+    $wingetPackageRoot = Join-Path $env:LOCALAPPDATA "Microsoft/WinGet/Packages"
+    if (Test-Path $wingetPackageRoot) {
+        $miseExe = Get-ChildItem -Path $wingetPackageRoot -Filter mise.exe -Recurse -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -like "*jdx.mise*" } |
+            Select-Object -First 1
+
+        if ($miseExe) {
+            $env:PATH = "$($miseExe.DirectoryName);$env:PATH"
+            return $miseExe.FullName
+        }
+    }
+
+    return $null
+}
+
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
     throw "[chezmoi] winget is required for Windows package installation."
 }
@@ -60,15 +85,28 @@ foreach ($package in $packages) {
 if (Get-Command pwsh -ErrorAction SilentlyContinue) {
     pwsh -NoProfile -Command @'
 $ErrorActionPreference = "Stop"
-Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-Install-Module -Name PSReadLine -Scope CurrentUser -Force -AllowClobber
-Install-Module -Name PSFzf -Scope CurrentUser -Force -AllowClobber
+$repo = Get-PSRepository -Name PSGallery
+$originalPolicy = $repo.InstallationPolicy
+
+try {
+    if ($originalPolicy -ne "Trusted") {
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    }
+
+    Install-Module -Name PSReadLine -Scope CurrentUser -Force -AllowClobber
+    Install-Module -Name PSFzf -Scope CurrentUser -Force -AllowClobber
+} finally {
+    if ($originalPolicy -ne "Trusted") {
+        Set-PSRepository -Name PSGallery -InstallationPolicy $originalPolicy
+    }
+}
 '@
 } else {
     Write-Warning "[chezmoi] pwsh not found in PATH yet; restart the shell and install PSReadLine/PSFzf manually if needed."
 }
 
-if (Get-Command mise -ErrorAction SilentlyContinue) {
+$mise = Get-MiseCommand
+if ($mise) {
     $miseConfigs = @(
         (Join-Path $HOME "mise.toml"),
         (Join-Path $HOME ".mise.toml"),
@@ -79,12 +117,14 @@ if (Get-Command mise -ErrorAction SilentlyContinue) {
     foreach ($miseConfig in $miseConfigs) {
         if (Test-Path $miseConfig) {
             Write-Host "[chezmoi] Trusting mise config $miseConfig..."
-            mise trust $miseConfig
+            & $mise trust $miseConfig
         }
     }
 
     Write-Host "[chezmoi] Installing tools via mise..."
-    mise install
+    & $mise install
+} else {
+    Write-Warning "[chezmoi] mise not found after installation; restart PowerShell and run 'mise install'."
 }
 
 Write-Host "[chezmoi] Windows bootstrap finished."
