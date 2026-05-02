@@ -1,0 +1,57 @@
+{{ if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = "Stop"
+
+if ($PSVersionTable.PSEdition -ne "Core") {
+    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+    if (-not $pwsh) {
+        throw "[chezmoi] PowerShell 7 (pwsh) is required. Install it with: winget install --id Microsoft.PowerShell --exact --source winget"
+    }
+
+    & $pwsh.Source -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+    exit $LASTEXITCODE
+}
+
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    throw "[chezmoi] git is required to install LazyVim."
+}
+
+$nvimConfig = Join-Path $env:LOCALAPPDATA "nvim"
+$nvimData = Join-Path $env:LOCALAPPDATA "nvim-data"
+
+function Move-ExistingPathToBackup {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path $Path)) {
+        return
+    }
+
+    $backup = "$Path.bak"
+    if (Test-Path $backup) {
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        $backup = "$Path.bak.$timestamp"
+    }
+
+    Write-Host "[chezmoi] Backing up $Path to $backup..."
+    Move-Item -Path $Path -Destination $backup
+}
+
+if (Test-Path $nvimConfig) {
+    Write-Host "[chezmoi] LazyVim config already exists at $nvimConfig; leaving it unchanged."
+    exit 0
+}
+
+Move-ExistingPathToBackup -Path $nvimData
+
+Write-Host "[chezmoi] Installing LazyVim starter into $nvimConfig..."
+git clone https://github.com/LazyVim/starter $nvimConfig
+
+$starterGitDir = Join-Path $nvimConfig ".git"
+if (Test-Path $starterGitDir) {
+    Remove-Item -Path $starterGitDir -Recurse -Force
+}
+
+Write-Host "[chezmoi] LazyVim starter installed. Run nvim, then :LazyHealth."
+{{ end -}}

@@ -9,5 +9,5 @@ uv = "latest"
 node = "24"
 
 [env]
-GOPATH = "{{env.HOME}}/go"
-PATH = "{{env.HOME}}/go/bin:{{env.PATH}}"
+GOPATH = "{{ get_env(name='HOME', default=get_env(name='USERPROFILE', default='')) }}/go"
+_.path = ["{{env.GOPATH}}/bin"]

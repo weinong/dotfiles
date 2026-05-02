@@ -1,0 +1,91 @@
+{{ if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = "Stop"
+
+if ($PSVersionTable.PSEdition -ne "Core") {
+    $pwsh = Get-Command pwsh -ErrorAction SilentlyContinue
+    if (-not $pwsh) {
+        throw "[chezmoi] PowerShell 7 (pwsh) is required. Install it with: winget install --id Microsoft.PowerShell --exact --source winget"
+    }
+
+    & $pwsh.Source -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+    exit $LASTEXITCODE
+}
+
+function Install-WinGetPackage {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Id
+    )
+
+    $installed = winget list --id $Id --exact --accept-source-agreements 2>$null
+    if ($LASTEXITCODE -eq 0 -and $installed -match [regex]::Escape($Id)) {
+        Write-Host "[chezmoi] $Id already installed."
+        return
+    }
+
+    Write-Host "[chezmoi] Installing $Id..."
+    winget install --id $Id --exact --source winget --accept-package-agreements --accept-source-agreements
+}
+
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+    throw "[chezmoi] winget is required for Windows package installation."
+}
+
+$packages = @(
+    "Git.Git",
+    "Microsoft.WindowsTerminal",
+    "equalsraf.win32yank",
+    "Starship.Starship",
+    "jdx.mise",
+    "ajeetdsouza.zoxide",
+    "junegunn.fzf",
+    "BurntSushi.ripgrep.MSVC",
+    "sharkdp.fd",
+    "sharkdp.bat",
+    "eza-community.eza",
+    "GitHub.cli",
+    "jqlang.jq",
+    "MikeFarah.yq",
+    "Kubernetes.kubectl",
+    "Derailed.k9s",
+    "Neovim.Neovim",
+    "BrechtSanders.WinLibs.POSIX.UCRT",
+    "JesseDuffield.lazygit"
+)
+
+foreach ($package in $packages) {
+    Install-WinGetPackage -Id $package
+}
+
+if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+    pwsh -NoProfile -Command @'
+$ErrorActionPreference = "Stop"
+Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+Install-Module -Name PSReadLine -Scope CurrentUser -Force -AllowClobber
+Install-Module -Name PSFzf -Scope CurrentUser -Force -AllowClobber
+'@
+} else {
+    Write-Warning "[chezmoi] pwsh not found in PATH yet; restart the shell and install PSReadLine/PSFzf manually if needed."
+}
+
+if (Get-Command mise -ErrorAction SilentlyContinue) {
+    $miseConfigs = @(
+        (Join-Path $HOME "mise.toml"),
+        (Join-Path $HOME ".mise.toml"),
+        (Join-Path $HOME ".config/mise/config.toml"),
+        "{{ .chezmoi.sourceDir }}/mise.toml"
+    )
+
+    foreach ($miseConfig in $miseConfigs) {
+        if (Test-Path $miseConfig) {
+            Write-Host "[chezmoi] Trusting mise config $miseConfig..."
+            mise trust $miseConfig
+        }
+    }
+
+    Write-Host "[chezmoi] Installing tools via mise..."
+    mise install
+}
+
+Write-Host "[chezmoi] Windows bootstrap finished."
+{{ end -}}

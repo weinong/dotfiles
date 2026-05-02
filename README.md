@@ -4,6 +4,10 @@ A quick, repeatable way to set up a new machine with my shell, tools, and config
 
 > Supported: macOS (Apple Silicon & Intel), Linux, and WSL.
 
+Windows support is experimental and targets PowerShell 7 with chezmoi, winget,
+starship, mise, zoxide, fzf, and the same core CLI tools used by the Unix shell
+setup.
+
 ## WSL2+Ubuntu
 
 ```sh
@@ -57,6 +61,42 @@ brew install chezmoi
 chezmoi init https://github.com/weinong/dotfiles --apply
 ```
 
+## Windows + PowerShell
+
+Install Git, PowerShell 7, and chezmoi first:
+
+```powershell
+winget install --id Git.Git --exact --source winget
+winget install --id Microsoft.PowerShell --exact --source winget
+winget install --id twpayne.chezmoi --exact --source winget
+```
+
+Restart into PowerShell 7 (`pwsh`), then apply the repo:
+
+```powershell
+chezmoi init https://github.com/weinong/dotfiles --apply
+```
+
+To test from a local checkout before pushing a branch:
+
+```powershell
+cd C:\Users\weino\repos\dotfiles
+chezmoi --source C:\Users\weino\repos\dotfiles diff
+chezmoi --source C:\Users\weino\repos\dotfiles apply
+```
+
+The Windows profile is installed to PowerShell's `$PROFILE.CurrentUserCurrentHost`
+path, which also works when Documents is redirected to OneDrive. It initializes
+starship, mise, zoxide, PSReadLine, PSFzf, aliases for the shared CLI tools, and
+fzf bindings for opening files and live grep. The `vi` and `vim` commands point
+to `nvim`.
+
+LazyVim is installed from the official starter template into the platform
+Neovim config directory. On Windows that is `%LOCALAPPDATA%\nvim`; if it already
+exists, the installer leaves it unchanged. After first install, run `nvim`, then
+`:LazyHealth`. The Windows bootstrap also installs WinLibs GCC so
+`nvim-treesitter` can compile parsers, plus win32yank for clipboard integration.
+
 ### Headless / Non-Interactive Install
 
 For automated setups (CI, scripts, servers), use `NONINTERACTIVE=1` to skip prompts:
@@ -75,6 +115,7 @@ chezmoi init https://github.com/weinong/dotfiles --apply
 ## Daily use
 
 - Update packages: `brew update && brew upgrade`
+- Update Windows packages: `winget upgrade --all`
 - Apply dotfiles changes: `chezmoi apply`
 - Apply specific files or directories: `chezmoi apply ~/.config/opencode/AGENTS.md`
 - Preview changes before applying: `chezmoi diff ~/.config/opencode/`
@@ -141,11 +182,4 @@ In WSL, verify
 ```sh
 gpg --card-status
 gpg --clearsign
-```
-
-## Packages to Install on Windows
-
-```
-winget install win32yank
-# restart shell in wsl
 ```
