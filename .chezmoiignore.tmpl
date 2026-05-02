@@ -1,0 +1,40 @@
+# Ignore repo documentation and root-level agent instructions.
+README.md
+LICENSE
+AGENTS.md
+
+{{ if eq .chezmoi.os "windows" }}
+# Unix-only shell and package setup
+Brewfile
+Brewfile.tmpl
+*.sh
+05-install-apt-essentials.sh
+10-install-packages.sh
+20-install-lazyvim.sh
+25-mise-trust.sh
+30-install-wslu.sh
+install_tmux_tpm.sh
+.tmux.conf
+.zprofile
+.zsh_plugins.txt
+.zshrc
+dot_tmux.conf
+dot_zprofile
+dot_zsh_plugins.txt
+dot_zshrc.tmpl
+run_once_after_05-install-apt-essentials.sh.tmpl
+run_once_after_10-install-packages.sh.tmpl
+run_once_after_20-install-lazyvim.sh.tmpl
+run_once_after_25-mise-trust.sh.tmpl
+run_once_after_30-install-wslu.sh.tmpl
+run_once_install_tmux_tpm.sh.tmpl
+{{ else }}
+# Windows-only shell and package setup
+*.ps1
+10-install-windows-packages.ps1
+20-install-lazyvim.ps1
+15-install-powershell-profile.ps1
+run_once_after_10-install-windows-packages.ps1.tmpl
+run_once_after_20-install-lazyvim.ps1.tmpl
+run_onchange_after_15-install-powershell-profile.ps1.tmpl
+{{ end }}
