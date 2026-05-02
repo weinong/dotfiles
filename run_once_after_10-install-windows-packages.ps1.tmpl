@@ -28,9 +28,18 @@ function Install-WinGetPackage {
 }
 
 function Get-MiseCommand {
-    $mise = Get-Command mise -ErrorAction SilentlyContinue
+    $mise = Get-Command mise.exe -CommandType Application -ErrorAction SilentlyContinue
     if ($mise) {
-        foreach ($candidate in @($mise.Source, $mise.Path, $mise.Definition, $mise.Name)) {
+        foreach ($candidate in @($mise.Source, $mise.Path, $mise.Definition)) {
+            if ($candidate) {
+                return $candidate
+            }
+        }
+    }
+
+    $mise = Get-Command mise -CommandType Application -ErrorAction SilentlyContinue
+    if ($mise) {
+        foreach ($candidate in @($mise.Source, $mise.Path, $mise.Definition)) {
             if ($candidate) {
                 return $candidate
             }
