@@ -37,6 +37,15 @@ if (Get-Command zoxide -ErrorAction SilentlyContinue) {
 
 if (Get-Command starship -ErrorAction SilentlyContinue) {
     (& starship init powershell) | Out-String | Invoke-Expression
+
+    # Starship replaces the `prompt` function, which removes zoxide's directory
+    # tracking hook. Re-register the hook via Starship's precmd extension point
+    # so `z` continues to learn from `cd`.
+    if (Get-Command __zoxide_hook -ErrorAction SilentlyContinue) {
+        function global:Invoke-Starship-PreCommand {
+            __zoxide_hook
+        }
+    }
 }
 
 if (Get-Module -ListAvailable -Name PSReadLine) {
