@@ -112,6 +112,43 @@ brew install chezmoi
 chezmoi init https://github.com/weinong/dotfiles --apply
 ```
 
+## Nerd Font (FiraCode)
+
+A patched [Nerd Font](https://github.com/ryanoasis/nerd-fonts) is required for
+icons in starship, nvim, and other terminal tools. Install **FiraCode Nerd Font**
+using the platform-appropriate method below.
+
+### macOS (Homebrew)
+
+```sh
+brew install font-fira-code-nerd-font
+```
+
+### Windows (PowerShell)
+
+Using the [NerdFonts PSModule](https://github.com/PSModule/NerdFonts):
+
+```powershell
+Install-PSResource -Name NerdFonts
+Import-Module -Name NerdFonts
+Install-NerdFont -Name 'FiraCode'
+```
+
+Or use the [web installer](https://github.com/jpawlowski/nerd-fonts-installer-PS)
+(PowerShell 7+ or Windows PowerShell 5.1):
+
+```powershell
+& ([scriptblock]::Create((iwr 'https://to.loredo.me/Install-NerdFont.ps1'))) -Name FiraCode
+```
+
+### Linux
+
+```sh
+brew install font-fira-code-nerd-font --cask
+```
+
+After installing, set your terminal emulator's font to **FiraCode Nerd Font**.
+
 ## Daily use
 
 - Update packages: `brew update && brew upgrade`
