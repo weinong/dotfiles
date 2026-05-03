@@ -149,6 +149,12 @@ brew install font-fira-code-nerd-font --cask
 
 After installing, set your terminal emulator's font to **FiraCode Nerd Font**.
 
+## Cheatsheet
+
+A complete reference for the keybindings, aliases, and tools this repo
+configures (tmux, fzf, zsh, PowerShell, CLI tools, chezmoi workflow) lives at
+[`docs/cheatsheet.md`](docs/cheatsheet.md).
+
 ## Daily use
 
 - Update packages: `brew update && brew upgrade`
